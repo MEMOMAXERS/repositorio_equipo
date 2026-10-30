@@ -1,22 +1,26 @@
 #!/bin/bash
 
-# Recorrer los archivos de la carpeta y sus subcarpetas
-while IFS= read -r -d '' archivo; do  
-    # Contar las apariciones exactas de la cadena
-    cantidad=$(grep -oF -- "$cadena" "$archivo" 2>/dev/null | wc -l)
+# Verificar que pasen 2 argumentos
+if [ "$#" -ne 2 ]; then
+    echo "Uso: $0 <palabra> <carpeta>"
+    exit 1
+fi
 
-    # Mostrar solo los archivos que tienen coincidencias
-    if (( cantidad > 0 )); then
-        echo "Archivo: $archivo"
-	echo "Apariciones: $cantidad"
-	echo ""
-		
-	((total++))
+palabra=$1
+dir=$2
+contador=0
+
+echo "Buscando '$palabra' en la carpeta '$dir'..."
+echo "----------------------------------------"
+
+for f in $(find "$dir" -type f); do
+    n=$(grep -o "$palabra" "$f" 2>/dev/null | wc -l)
+    
+    if [ "$n" -gt 0 ]; then
+        echo "Encontrado en: $f ($n veces)"
+        contador=$((contador + 1))
     fi
-	
-done < <(find "$carpeta" -type f -print0)
+done
 
-# Mostrar el total de archivos encontrados
-echo "-------------------"
-echo "Total de archivos encontrados: $total"
-
+echo "----------------------------------------"
+echo "Total de archivos con coincidencias: $contador"
